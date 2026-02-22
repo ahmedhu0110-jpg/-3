@@ -113,6 +113,56 @@
             opacity: 0.7;
             z-index: 20;
         }
+
+        /* --- إضافات الاحترافية (شريط التنقل، زر الصعود) --- */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        @keyframes magicalGlow {
+            0%, 100% {
+                text-shadow: 0 0 10px rgba(250, 219, 95, 0.2), 0 0 20px rgba(250, 219, 95, 0.1);
+                opacity: 0.4;
+            }
+            50% {
+                text-shadow: 0 0 20px rgba(250, 219, 95, 1), 0 0 40px #FADB5F, 0 0 60px rgba(250, 219, 95, 0.8);
+                opacity: 1;
+            }
+        }
+        
+        .continuous-glow {
+            animation: magicalGlow 2.5s ease-in-out infinite;
+            display: inline-block;
+        }
+
+        .text-3d {
+            color: #FADB5F;
+            text-shadow: 
+                1px 1px 0 #c2a741,
+                2px 2px 0 #b09638,
+                3px 3px 0 #9d8530,
+                4px 4px 0 #8b7529,
+                5px 5px 15px rgba(0, 0, 0, 0.9);
+        }
+
+        .nav-chip {
+            white-space: nowrap; padding: 0.4rem 1.25rem; border-radius: 9999px;
+            background: rgba(250, 219, 95, 0.05); border: 1px solid rgba(250, 219, 95, 0.2);
+            color: white; font-weight: 600; transition: all 0.3s ease; cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .nav-chip.active, .nav-chip:hover {
+            background: #FADB5F; color: #0a0a0a; border-color: #FADB5F; font-weight: 700;
+        }
+
+        #scrollTopBtn {
+            position: fixed; bottom: 5rem; right: 1.5rem; width: 3rem; height: 3rem;
+            background: #FADB5F; color: #0a0a0a; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 1.25rem; box-shadow: 0 4px 15px rgba(250, 219, 95, 0.4);
+            cursor: pointer; opacity: 0; visibility: hidden; transform: translateY(20px);
+            transition: all 0.4s ease; z-index: 998;
+        }
+        #scrollTopBtn.show { opacity: 1; visibility: visible; transform: translateY(0); }
     </style>
 </head>
 <body class="font-body antialiased relative pb-24">
@@ -131,13 +181,53 @@
             <div class="absolute top-10 right-10 w-32 h-32 bg-cafe-gold rounded-full blur-[80px]"></div>
             <div class="absolute bottom-10 left-10 w-40 h-40 bg-cafe-gold rounded-full blur-[100px]"></div>
         </div>
-        <h2 class="text-cafe-gold text-lg md:text-xl mb-2 tracking-wider font-semibold opacity-90 relative z-10" style="animation: fadeInUp 1s ease-out;">يرحب بكم</h2>
-        <h1 class="font-title text-7xl md:text-8xl text-cafe-gold text-center leading-tight title-pulse glow-text relative z-10" style="animation: fadeInUp 1s ease-out 0.2s both;">كافيه<br>الكورنيش</h1>
+        
+        <div class="relative z-10 flex items-center gap-4 mb-2" style="animation: fadeInUp 1s ease-out;">
+            <span class="w-8 md:w-12 h-[2px] bg-gradient-to-l from-cafe-gold to-transparent opacity-70"></span>
+            <h2 class="font-title text-4xl md:text-5xl text-3d tracking-widest opacity-100">يرحب بكم</h2>
+            <span class="w-8 md:w-12 h-[2px] bg-gradient-to-r from-cafe-gold to-transparent opacity-70"></span>
+        </div>
+
+        <h1 class="font-title text-7xl md:text-8xl text-cafe-gold text-center leading-tight relative z-10" style="animation: fadeInUp 1s ease-out 0.2s both;">
+            <span class="continuous-glow">كافيه<br>الكورنيش</span>
+        </h1>
         <div class="mt-8 w-24 h-1 bg-gradient-to-r from-transparent via-cafe-gold to-transparent opacity-50 relative z-10"></div>
     </header>
 
     <!-- Main Menu Content -->
     <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-10 mt-12">
+
+        <!-- Sticky Control Panel (Search & Categories) -->
+        <div class="sticky top-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-xl pt-4 pb-3 -mx-4 px-4 sm:mx-0 sm:px-0 border-b border-cafe-gold/20 shadow-[0_10px_30px_rgba(0,0,0,0.8)] mb-2 transition-all duration-300 rounded-b-xl sm:rounded-none">
+            <!-- Search Bar -->
+            <div class="relative w-full max-w-md mx-auto mb-4">
+                <input type="text" id="searchInput" placeholder="ابحث عن مشروبك المفضل..." 
+                       class="w-full bg-[#121212] border border-cafe-gold/30 rounded-full py-2.5 pr-12 pl-4 text-white placeholder-gray-500 focus:outline-none focus:border-cafe-gold focus:ring-1 focus:ring-cafe-gold transition-all shadow-lg text-sm md:text-base">
+                <i class="fas fa-search absolute right-4 top-1/2 transform -translate-y-1/2 text-cafe-gold"></i>
+            </div>
+            
+            <!-- Category Navigation -->
+            <div class="flex overflow-x-auto hide-scrollbar gap-2 pb-1 px-1 snap-x">
+                <button onclick="scrollToSection('hot-drinks', this)" class="nav-chip active snap-start">ساخن</button>
+                <button onclick="scrollToSection('sahlab', this)" class="nav-chip snap-start">سحلب</button>
+                <button onclick="scrollToSection('fresh-juices', this)" class="nav-chip snap-start">عصائر</button>
+                <button onclick="scrollToSection('soda', this)" class="nav-chip snap-start">صودا</button>
+                <button onclick="scrollToSection('milkshake', this)" class="nav-chip snap-start">ميلك شيك</button>
+                <button onclick="scrollToSection('cocktails', this)" class="nav-chip snap-start">كوكتيلات</button>
+                <button onclick="scrollToSection('ice-cream', this)" class="nav-chip snap-start">آيس كريم</button>
+                <button onclick="scrollToSection('rice-pudding', this)" class="nav-chip snap-start">حلو</button>
+                <button onclick="scrollToSection('special-corner', this)" class="nav-chip snap-start">ركن مميز</button>
+            </div>
+        </div>
+
+        <!-- Empty Search State -->
+        <div id="emptySearch" class="hidden flex-col items-center justify-center py-12 text-center animate-pulse">
+            <div class="bg-cafe-dark rounded-full w-20 h-20 flex items-center justify-center mb-4 border border-white/5">
+                <i class="fas fa-search-minus text-4xl text-gray-500"></i>
+            </div>
+            <h3 class="text-xl font-bold text-cafe-gold mb-2">عفواً، لم نجد ما تبحث عنه!</h3>
+            <p class="text-gray-400 text-sm">جرب كتابة اسم المشروب بطريقة أخرى.</p>
+        </div>
 
         <!-- Section 1: Hot Drinks -->
         <section class="menu-card rounded-2xl animate-on-scroll overflow-hidden flex flex-col">
@@ -322,10 +412,10 @@
                 </div>
                 
                 <div class="accordion-content flex flex-col gap-4">
-                    <div class="menu-item flex items-center justify-between group cursor-pointer"><span class="item-name font-semibold">ميلك شيك فانيليا</span><div class="dotted-leader"></div><span class="text-cafe-gold font-bold">30 ج</span></div>
-                    <div class="menu-item flex items-center justify-between group cursor-pointer"><span class="item-name font-semibold">ميلك شيك مانجا</span><div class="dotted-leader"></div><span class="text-cafe-gold font-bold">35 ج</span></div>
-                    <div class="menu-item flex items-center justify-between group cursor-pointer"><span class="item-name font-semibold">ميلك شيك فراولة</span><div class="dotted-leader"></div><span class="text-cafe-gold font-bold">35 ج</span></div>
-                    <div class="menu-item flex items-center justify-between group cursor-pointer"><span class="item-name font-semibold">أيس بوريو</span><div class="dotted-leader"></div><span class="text-cafe-gold font-bold">50 ج</span></div>
+                    <div class="menu-item flex items-center justify-between group cursor-pointer"><span class="item-name font-semibold">ميلك شيك فانيليا</span><div class="dotted-leader"></div><span class="text-cafe-gold font-bold">40 ج</span></div>
+                    <div class="menu-item flex items-center justify-between group cursor-pointer"><span class="item-name font-semibold">ميلك شيك مانجا</span><div class="dotted-leader"></div><span class="text-cafe-gold font-bold">40 ج</span></div>
+                    <div class="menu-item flex items-center justify-between group cursor-pointer"><span class="item-name font-semibold">ميلك شيك فراولة</span><div class="dotted-leader"></div><span class="text-cafe-gold font-bold">40 ج</span></div>
+                    <div class="menu-item flex items-center justify-between group cursor-pointer"><span class="item-name font-semibold">أيس بوريو</span><div class="dotted-leader"></div><span class="text-cafe-gold font-bold">40 ج</span></div>
                 </div>
             </div>
         </section>
@@ -462,9 +552,56 @@
     <!-- Footer -->
     <footer class="mt-8 pb-12 text-center text-gray-500 text-sm relative z-10">
         <p>© 2026 كافيه الكورنيش. جميع الحقوق محفوظة.</p>
+        <p class="mt-2 text-xs opacity-60"><i class="fas fa-map-marker-alt text-cafe-gold mr-1"></i> كورنيش النيل - مفتوح 24 ساعة</p>
     </footer>
 
+    <!-- Scroll to Top Button -->
+    <button id="scrollTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="العودة للأعلى">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
     <script>
+        // --- Assign IDs dynamically for Scroll Navigation ---
+        const sectionIds = ['hot-drinks', 'sahlab', 'fresh-juices', 'soda', 'milkshake', 'cocktails', 'ice-cream', 'rice-pudding', 'special-corner'];
+        document.querySelectorAll('.menu-card').forEach((card, index) => {
+            if(sectionIds[index]) {
+                card.id = sectionIds[index];
+                card.style.scrollMarginTop = "160px"; // تعويض مساحة الشريط اللاصق
+            }
+        });
+
+        // --- Scroll to Section Logic ---
+        function scrollToSection(id, btnElement) {
+            const section = document.getElementById(id);
+            if (section) {
+                // Remove active class from all buttons
+                document.querySelectorAll('.nav-chip').forEach(btn => btn.classList.remove('active'));
+                // Add active to the clicked button
+                if(btnElement) btnElement.classList.add('active');
+                
+                // Open the specific accordion automatically
+                const header = section.querySelector('.accordion-header');
+                const content = section.querySelector('.accordion-content');
+                if (!header.classList.contains('open')) {
+                    header.classList.add('open');
+                    content.classList.add('open');
+                }
+
+                // Smooth scroll to the section
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // --- Scroll to Top Button Visibility ---
+        window.addEventListener('scroll', () => {
+            const topBtn = document.getElementById('scrollTopBtn');
+            if (window.scrollY > 400) {
+                topBtn.classList.add('show');
+            } else {
+                topBtn.classList.remove('show');
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', () => {
             const observerOptions = { root: null, rootMargin: '0px', threshold: 0.15 };
             const observer = new IntersectionObserver((entries, observer) => {
@@ -490,6 +627,55 @@
                 headerElement.classList.remove('open');
                 content.classList.remove('open');
             }
+        }
+
+        // Search Functionality
+        const searchInput = document.getElementById('searchInput');
+        const menuCards = document.querySelectorAll('.menu-card');
+        const emptySearch = document.getElementById('emptySearch');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.trim().toLowerCase();
+                let anyCardVisible = false;
+
+                menuCards.forEach(card => {
+                    let hasVisibleItems = false;
+                    const menuItems = card.querySelectorAll('.menu-item');
+                    const accordionContent = card.querySelector('.accordion-content');
+                    const accordionHeader = card.querySelector('.accordion-header');
+
+                    menuItems.forEach(item => {
+                        const itemName = item.querySelector('.item-name').textContent.toLowerCase();
+                        if (itemName.includes(searchTerm)) {
+                            item.style.display = 'flex';
+                            hasVisibleItems = true;
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+
+                    // Hide or show the entire card based on results
+                    if (hasVisibleItems) {
+                        card.style.display = 'flex';
+                        anyCardVisible = true;
+                        // Auto-expand the accordion if user is searching
+                        if (searchTerm !== '') {
+                            accordionHeader.classList.add('open');
+                            accordionContent.classList.add('open');
+                        }
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                // Show Empty State if nothing is found
+                if (searchTerm !== '' && !anyCardVisible) {
+                    emptySearch.style.display = 'flex';
+                } else {
+                    emptySearch.style.display = 'none';
+                }
+            });
         }
     </script>
 </body>
